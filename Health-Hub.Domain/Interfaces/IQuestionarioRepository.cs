@@ -14,6 +14,15 @@ namespace Health_Hub.Domain.Interfaces
         Task<(List<Questionario> Itens, int Total)> GetAllByPageAsync(int pageNumber, int pageSize);
         Task<Questionario> AddAsync(Questionario questionario);
         Task<bool> DeleteAsync(int id);
+        Task InserirQuestionarioViaProcedureAsync(
+            int usuarioId,
+            int estresse,
+            int sono,
+            int ansiedade,
+            int sobrecarga,
+            string avaliacao
+        );
+
 
     }
 

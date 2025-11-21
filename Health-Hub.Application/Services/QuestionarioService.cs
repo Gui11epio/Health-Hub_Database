@@ -87,6 +87,27 @@ namespace Health_Hub.Application.Services
             return "Alto risco de burnout! Procure ajuda imediatamente e converse com a equipe de saúde ocupacional.";
         }
 
+        public async Task<QuestionarioResponse> CriarViaProcedure(QuestionarioRequest request)
+        {
+            // Gerar avaliação automática como antes
+            string avaliacao = GerarAvaliacao(_mapper.Map<Questionario>(request));
+
+            await _repo.InserirQuestionarioViaProcedureAsync(
+                request.UsuarioId,
+                request.NivelEstresse,
+                request.QualidadeSono,
+                request.Ansiedade,
+                request.Sobrecarga,
+                avaliacao
+            );
+
+            // Buscar o resultado recém-gerado
+            var questionarios = await _repo.GetAllAsync();
+            var ultimo = questionarios.OrderByDescending(q => q.Id).First();
+
+            return _mapper.Map<QuestionarioResponse>(ultimo);
+        }
+
     }
 
 }

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using @enum;
 using Health_Hub.Domain.Entities;
 using Health_Hub.Domain.IRepositories;
 using Health_Hub.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Health_Hub.Infrastructure.Repositories
 {
@@ -67,5 +70,43 @@ namespace Health_Hub.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        // ============================
+        // CHAMAR SP_INSERIR_USUARIO
+        // ============================
+        public async Task InserirUsuarioViaProcedureAsync(string emailCorporativo, string nome, string senha, TipoUsuario tipo)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "BEGIN SP_INSERIR_USUARIO(:P_EMAIL, :P_NOME, :P_SENHA, :P_TIPO); END;",
+                new OracleParameter("P_EMAIL", OracleDbType.Varchar2) { Value = emailCorporativo },
+                new OracleParameter("P_NOME", OracleDbType.Varchar2) { Value = nome },
+                new OracleParameter("P_SENHA", OracleDbType.Varchar2) { Value = senha },
+                new OracleParameter("P_TIPO", OracleDbType.Int32) { Value = tipo }
+            );
+        }
+
+        // ============================
+        // CHAMAR SP_EXPORTAR_JSON
+        // ============================
+        public async Task<string> ExportarJsonAsync()
+        {
+            using var cmd = _context.Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = "SP_EXPORTAR_JSON";
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            var output = new OracleParameter("P_OUT_JSON", OracleDbType.Clob)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            cmd.Parameters.Add(output);
+
+            await _context.Database.OpenConnectionAsync();
+            await cmd.ExecuteNonQueryAsync();
+
+            return output.Value?.ToString() ?? "[]";
+        }
+
+        
     }
 }

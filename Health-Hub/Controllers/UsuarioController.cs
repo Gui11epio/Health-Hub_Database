@@ -135,5 +135,26 @@ namespace Health_Hub.Controllers
 
             return NoContent();
         }
+
+
+        // ============================================
+        // CRIAR USUÁRIO VIA PROCEDURE ORACLE
+        // ============================================
+        [HttpPost("procedure")]
+        public async Task<IActionResult> CreateUsingProcedure([FromBody] UsuarioRequest dto)
+        {
+            var created = await _svc.CriarViaProcedure(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+
+        // ============================================
+        // EXPORTAR JSON COMPLETO DO BANCO
+        // ============================================
+        [HttpGet("json/exportar")]
+        public async Task<IActionResult> ExportarJson()
+        {
+            var json = await _svc.ExportarJson();
+            return Ok(json);
+        }
     }
 }

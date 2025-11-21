@@ -74,6 +74,25 @@ namespace Health_Hub.Application.Services
             return await _repo.DeleteAsync(id);
         }
 
+        public async Task<UsuarioResponse> CriarViaProcedure(UsuarioRequest request)
+        {
+            await _repo.InserirUsuarioViaProcedureAsync(
+                request.EmailCorporativo,
+                request.Nome,
+                request.Senha,
+                request.Tipo
+            );
+
+            // Buscar o usuário recém-criado
+            var usuario = await _repo.GetByEmailAsync(request.EmailCorporativo);
+            return _mapper.Map<UsuarioResponse>(usuario);
+        }
+
+        public async Task<string> ExportarJson()
+        {
+            return await _repo.ExportarJsonAsync();
+        }
+
     }
 }
 

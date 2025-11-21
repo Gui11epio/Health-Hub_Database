@@ -92,5 +92,19 @@ namespace Health_Hub.Controllers
             if (!deleted) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("procedure")]
+        [SwaggerOperation(
+            Summary = "Cria um questionário via procedure Oracle",
+            Description = "Executa a SP_INSERIR_QUESTIONARIO no Oracle e retorna o registro criado."
+        )]
+        public async Task<IActionResult> CreateUsingProcedure([FromBody] QuestionarioRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _svc.CriarViaProcedure(request);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
     }
 }

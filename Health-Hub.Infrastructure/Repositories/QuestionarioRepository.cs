@@ -7,6 +7,7 @@ using Health_Hub.Domain.Entities;
 using Health_Hub.Domain.Interfaces;
 using Health_Hub.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Health_Hub.Infrastructure.Repositories
 {
@@ -54,7 +55,18 @@ namespace Health_Hub.Infrastructure.Repositories
             return true;
         }
 
-        
+        public async Task InserirQuestionarioViaProcedureAsync(int usuarioId, int estresse, int sono, int ansiedade, int sobrecarga, string avaliacao)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "BEGIN SP_INSERIR_QUESTIONARIO(:P_USUARIO_ID, :P_ESTRESSE, :P_SONO, :P_ANSIEDADE, :P_SOBRECARGA, :P_AVALIACAO); END;",
+                new OracleParameter("P_USUARIO_ID", OracleDbType.Int32) { Value = usuarioId },
+                new OracleParameter("P_ESTRESSE", OracleDbType.Int32) { Value = estresse },
+                new OracleParameter("P_SONO", OracleDbType.Int32) { Value = sono },
+                new OracleParameter("P_ANSIEDADE", OracleDbType.Int32) { Value = ansiedade },
+                new OracleParameter("P_SOBRECARGA", OracleDbType.Int32) { Value = sobrecarga },
+                new OracleParameter("P_AVALIACAO", OracleDbType.Varchar2) { Value = avaliacao }
+            );
+        }
     }
 
 }
